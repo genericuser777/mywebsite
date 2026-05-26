@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>genericuser777</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background:#000;
+  color:#00ff41;
+  font-family:'Share Tech Mono', monospace;
+  height:100vh;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* ───────────────────────────────────────── */
+
+canvas{
+  position:fixed;
+  inset:0;
+  z-index:0;
+
+  will-change:transform;
+  transform:translateZ(0);
+}
+
+.scanlines{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(0,0,0,0.07) 3px,
+      rgba(0,0,0,0.07) 4px
+    );
+}
+
+/* ───────────────────────────────────────── */
+
+.card{
+  position:relative;
+  z-index:2;
+
+  width:92%;
+  max-width:560px;
+  max-height:90vh;
+
+  overflow:hidden;
+
+  border:1px solid #00ff41;
+  border-radius:16px;
+
+  padding:1rem 1.6rem;
+
+  background:rgba(0,0,0,0.88);
+
+  box-shadow:
+    0 0 40px rgba(0,255,65,0.12),
+    inset 0 0 30px rgba(0,255,65,0.03);
+
+  scrollbar-width:thin;
+  scrollbar-color:#00ff41 #000;
+
+  cursor:pointer;
+
+  will-change:transform;
+
+  transform:translateZ(0) scale(0.62);
+  transform-origin:center center;
+
+  transition:
+    transform 0.35s cubic-bezier(0.34,1.56,0.64,1),
+    padding 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.card:hover{
+  transform:translateZ(0) scale(1);
+
+  padding:2rem 2.5rem;
+
+  overflow-y:auto;
+
+  box-shadow:
+    0 0 60px rgba(0,255,65,0.22),
+    inset 0 0 30px rgba(0,255,65,0.05);
+}
+
+.card::-webkit-scrollbar{
+  width:4px;
+}
+.card::-webkit-scrollbar-track{
+  background:#000;
+}
+
+.card::-webkit-scrollbar-thumb{
+  background:#00ff41;
+}
+
+/* ───────────────────────────────────────── */
+
+.prompt{
+  color:#00ff41;
+  opacity:.45;
+  font-size:.72rem;
+  margin-bottom:.3rem;
+  letter-spacing:.08em;
+}
+
+.username{
+  font-size:1.9rem;
+  font-weight:bold;
+
+  letter-spacing:.05em;
+
+  margin-bottom:1.4rem;
+
+  text-shadow:
+    0 0 10px #00ff41,
+    0 0 24px #00ff41;
+}
+
+.bio-line{
+  font-size:.92rem;
+  color:#00cc33;
+  min-height:1.4em;
+  margin-bottom:1.6rem;
+  letter-spacing:.04em;
+}
+
+.cursor{
+  display:inline-block;
+  width:9px;
+  height:1em;
+
+  background:#00ff41;
+
+  vertical-align:text-bottom;
+
+  animation:blink .75s step-end infinite;
+}
+
+@keyframes blink{
+  50%{
+    opacity:0;
+  }
+}
+
+.divider{
+  border:none;
+  border-top:1px solid rgba(0,255,65,0.18);
+  margin:1.2rem 0;
+}
+
+.label{
+  font-size:.68rem;
+  opacity:.4;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-bottom:.5rem;
+}
+
+/* ───────────────────────────────────────── */
+
+.email-row{
+  display:flex;
+  align-items:center;
+  gap:.7rem;
+  margin-bottom:1.2rem;
+}
+
+.email-addr{
+  flex:1;
+  font-size:.88rem;
+  color:#00ff41;
+  letter-spacing:.03em;
+}
+
+.copy-btn,
+.search-btn{
+  background:transparent;
+  border:1px solid #00ff41;
+  color:#00ff41;
+
+  font-family:'Share Tech Mono', monospace;
+
+  cursor:pointer;
+  white-space:nowrap;
+
+  transition:all .15s;
+}
+
+.copy-btn{
+  font-size:.7rem;
+  padding:.28rem .7rem;
+  letter-spacing:.1em;
+}
+
+.copy-btn:hover,
+.copy-btn.copied,
+.search-btn:hover{
+  background:#00ff41;
+  color:#000;
+
+  box-shadow:0 0 14px rgba(0,255,65,.6);
+}
+
+/* ───────────────────────────────────────── */
+
+.gh-btn{
+  display:block;
+  width:100%;
+
+  padding:.6rem 1rem;
+
+  border:1px solid #00ff41;
+  border-radius:6px;
+
+  background:transparent;
+  color:#00ff41;
+
+  text-decoration:none;
+  text-align:center;
+  text-transform:uppercase;
+
+  font-size:.85rem;
+  letter-spacing:.12em;
+
+  transition:all .15s;
+
+  margin-bottom:1.2rem;
+}
+
+.gh-btn:hover{
+  background:#00ff41;
+  color:#000;
+}
+
+/* ───────────────────────────────────────── */
+
+.search-row{
+  display:flex;
+  gap:.5rem;
+  margin-bottom:.8rem;
+}
+
+#ghInput{
+  flex:1;
+
+  padding:.4rem .7rem;
+
+  background:transparent;
+  color:#00ff41;
+
+  border:1px solid rgba(0,255,65,.5);
+
+  outline:none;
+
+  font-family:'Share Tech Mono', monospace;
+  font-size:.82rem;
+
+  transition:border-color .2s;
+}
+
+#ghInput:focus{
+  border-color:#00ff41;
+  box-shadow:0 0 8px rgba(0,255,65,.3);
+}
+
+#ghInput::placeholder{
+  color:rgba(0,255,65,.3);
+}
+
+.search-btn{
+  font-size:.75rem;
+  padding:.4rem .9rem;
+  letter-spacing:.08em;
+}
+
+/* ───────────────────────────────────────── */
+
+#ghResults{
+  min-height:2rem;
+}
+
+.gh-loading{
+  opacity:.5;
+  font-size:.78rem;
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%,100%{
+    opacity:.5;
+  }
+  50%{
+    opacity:1;
+  }
+}
+
+.gh-error{
+  color:#ff4444;
+  font-size:.78rem;
+}
+
+.gh-user{
+  display:flex;
+  align-items:center;
+  gap:.9rem;
+
+  padding:.6rem .5rem;
+
+  border-bottom:1px solid rgba(0,255,65,.1);
+
+  text-decoration:none;
+
+  transition:background .15s;
+}
+
+.gh-user:last-child{
+  border-bottom:none;
+}
+
+.gh-user:hover{
+  background:rgba(0,255,65,.07);
+}
+
+.gh-avatar{
+  width:36px;
+  height:36px;
+
+  border-radius:50%;
+
+  border:1px solid rgba(0,255,65,.4);
+
+  filter:
+    grayscale(1)
+    sepia(1)
+    hue-rotate(90deg)
+    saturate(3);
+}
+
+.gh-info{
+  flex:1;
+  min-width:0;
+}
+
+.gh-login{
+  font-size:.85rem;
+  color:#00ff41;
+
+  text-shadow:0 0 6px rgba(0,255,65,.4);
+}
+
+.gh-name{
+  font-size:.72rem;
+  color:rgba(0,255,65,.55);
+
+  margin-top:.15rem;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.gh-arrow{
+  opacity:.35;
+  font-size:.8rem;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="rain"></canvas>
+
+<div class="scanlines"></div>
+
+<div class="card">
+
+  <div class="prompt">genericuser@kali~: hacker identified</div>
+
+  <div class="username">genericuser777</div>
+
+  <div class="bio-line">
+    <span id="bioText"></span><span class="cursor"></span>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="label">genericuser@kali~: hacker contact</div>
+
+  <div class="email-row">
+    <span class="email-addr">
+      genericuser777@atomicmail.io
+    </span>
+
+    <button
+      class="copy-btn"
+      id="copyBtn"
+      onclick="copyEmail()"
+    >
+      [ COPY ]
+    </button>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="label">genericuser@kali~: hackers github</div>
+
+  <a
+    class="gh-btn"
+    href="https://github.com/genericuser777"
+    target="_blank"
+    rel="noopener"
+  >
+    &gt; github.com/genericuser777
+  </a>
+
+  <hr class="divider" />
+
+  <div class="label">genericuser@kali~: search github matrix</div>
+
+  <div class="gh-search-wrap">
+
+    <div class="search-row">
+      <input
+        id="ghInput"
+        type="text"
+        placeholder="enter hacker name or keyword..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+
+      <button
+        class="search-btn"
+        onclick="ghSearch()"
+      >
+        [ SEARCH THE MATRIX ]
+      </button>
+    </div>
+
+    <div id="ghResults"></div>
+
+  </div>
+</div>
+
+<script>
+/* ───────────────────────────────────────── */
+/* MATRIX RAIN */
+/* ───────────────────────────────────────── */
+
+const canvas = document.getElementById('rain');
+
+const ctx = canvas.getContext('2d', {
+  alpha:false,
+  desynchronized:true
+});
+
+const codeSnippets = [
+  'if(x>0){','return null;','const fn=()=>',
+  'def __init__','SELECT * FROM','#include<stdio>',
+  'import numpy','public static','catch(err){',
+  '<div class=','git commit -m','sudo apt-get',
+  'while(true){','let arr=[];','console.log(',
+  'print(f"{}");','malloc(sizeof','[].map(x=>x)',
+  'async/await','docker run -d','ssh -i key.pem',
+  'chmod +x ./','curl -X POST','var x = null;',
+  'extends Base{','interface {}','try{fetch(url',
+  'lambda x: x*2','for i in range','Object.keys(o)',
+  'npm install','pip freeze >','cargo build',
+  'gcc -o out','javac Main.java','.then(res=>',
+  'git push origin','raise Exception',
+  'DELETE FROM t','UPDATE SET x=1',
+  '<script>','</style>',
+  '0x1F4A9','\\x00\\xFF',
+  '===undefined','!important;',
+  '@media(max-w','border-radius',
+  '#!/bin/bash','export default',
+  'module.exports','require("fs")',
+  'process.exit(0)',
+];
+
+const fontSize = 13;
+
+let cols;
+let drops;
+let snippetMap = {};
+
+ctx.shadowColor = '#00ff41';
+
+function resize() {
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+
+  ctx.font = `${fontSize}px "Share Tech Mono", monospace`;
+}
+
+function initDrops() {
+  cols = Math.min(
+    Math.floor(canvas.width / fontSize),
+    140
+  );
+
+  drops = Array.from(
+    { length: cols },
+    () => Math.random() * -canvas.height / fontSize
+  );
+}
+
+resize();
+initDrops();
+
+function drawRain() {
+
+  ctx.fillStyle = 'rgba(0,0,0,0.055)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  for(let i = 0; i < cols; i++) {
+
+    const y = drops[i];
+
+    if(y < 0) {
+      drops[i] += 0.4;
+      continue;
+    }
+
+    if(!snippetMap[i] || Math.random() < 0.003) {
+      snippetMap[i] =
+        codeSnippets[
+          (Math.random() * codeSnippets.length) | 0
+        ];
+    }
+
+    const snippet = snippetMap[i];
+
+    const charIndex = (y | 0) % snippet.length;
+
+    const ch = snippet[charIndex];
+
+    const isHead = drops[i] - (y | 0) < 0.5;
+
+    if(isHead) {
+
+      ctx.fillStyle = '#ccffcc';
+      ctx.shadowBlur = 8;
+
+    } else {
+
+      const fade =
+        Math.max(0.15, 1 - (y % 28) / 28);
+
+      ctx.fillStyle =
+        `rgba(0,${
+          (180 + 75 * fade) | 0
+        },${
+          (40 * fade) | 0
+        },${fade})`;
+
+      ctx.shadowBlur = 0;
+    }
+
+    ctx.fillText(
+      ch,
+      i * fontSize,
+      y * fontSize
+    );
+
+    drops[i] += 0.55 + Math.random() * 0.3;
+
+    if(
+      drops[i] * fontSize > canvas.height &&
+      Math.random() > 0.97
+    ) {
+      drops[i] = Math.random() * -20;
+    }
+  }
+
+  ctx.shadowBlur = 0;
+}
+
+/* RAF throttled */
+
+let lastFrame = 0;
+
+function animate(timestamp) {
+
+  if(timestamp - lastFrame > 33) {
+    drawRain();
+    lastFrame = timestamp;
+  }
+
+  requestAnimationFrame(animate);
+}
+
+requestAnimationFrame(animate);
+
+/* debounced resize */
+
+let resizeTimer;
+
+window.addEventListener('resize', () => {
+
+  clearTimeout(resizeTimer);
+
+  resizeTimer = setTimeout(() => {
+    resize();
+    initDrops();
+  }, 120);
+
+}, { passive:true });
+
+/* ───────────────────────────────────────── */
+/* TYPEWRITER */
+/* ───────────────────────────────────────── */
+
+const bioText =
+  "I do all programming languages. From low-level C and Assembly to high-level Python, JavaScript, Rust, Go, and beyond — if it compiles, runs, or interprets, I speak it. Full-stack dev, systems hacker, and terminal dweller. No language is off-limits. Got an idea? Drop me a suggestion for what to build or make — I'm always looking for the next project to hack together.";
+
+const bioTextEl =
+  document.getElementById('bioText');
+
+let ti = 0;
+
+function type() {
+
+  bioTextEl.textContent =
+    bioText.slice(0, ti);
+
+  if(ti < bioText.length) {
+
+    ti++;
+
+    setTimeout(
+      type,
+      55 + Math.random() * 50
+    );
+  }
+}
+
+setTimeout(type, 900);
+
+/* ───────────────────────────────────────── */
+/* COPY EMAIL */
+/* ───────────────────────────────────────── */
+
+function copyEmail() {
+
+  navigator.clipboard
+    .writeText('genericuser777@atomicmail.io')
+    .then(() => {
+
+      const btn =
+        document.getElementById('copyBtn');
+
+      btn.textContent = '[ COPIED ]';
+
+      btn.classList.add('copied');
+
+      setTimeout(() => {
+
+        btn.textContent = '[ COPY ]';
+
+        btn.classList.remove('copied');
+
+      }, 2000);
+    });
+}
+
+/* ───────────────────────────────────────── */
+/* GITHUB SEARCH */
+/* ───────────────────────────────────────── */
+
+const ghInput =
+  document.getElementById('ghInput');
+
+const ghResults =
+  document.getElementById('ghResults');
+
+let searchTimer;
+
+ghInput.addEventListener('keydown', e => {
+
+  if(e.key === 'Enter') {
+    ghSearch();
+  }
+});
+
+ghInput.addEventListener('input', () => {
+
+  clearTimeout(searchTimer);
+
+  if(ghInput.value.trim().length > 1) {
+
+    searchTimer =
+      setTimeout(ghSearch, 500);
+
+  } else {
+
+    ghResults.innerHTML = '';
+  }
+});
+
+async function ghSearch() {
+
+  const q = ghInput.value.trim();
+
+  if(!q) return;
+
+  ghResults.innerHTML =
+    '<div class="gh-loading">> scanning github matrix...</div>';
+
+  try {
+
+    const res = await fetch(
+      `https://api.github.com/search/users?q=${
+        encodeURIComponent(q)
+      }&per_page=5`
+    );
+
+    const data = await res.json();
+
+    if(!data.items || data.items.length === 0) {
+
+      ghResults.innerHTML =
+        '<div class="gh-error">> no users found in the matrix.</div>';
+
+      return;
+    }
+
+    const items = data.items.map(u => `
+      <a
+        class="gh-user"
+        href="https://github.com/${u.login}"
+        target="_blank"
+        rel="noopener"
+      >
+
+        <img
+          class="gh-avatar"
+          src="${u.avatar_url}&s=72"
+          alt="${u.login}"
+          loading="lazy"
+        />
+
+        <div class="gh-info">
+          <div class="gh-login">${u.login}</div>
+
+          <div class="gh-name">
+            github.com/${u.login}
+          </div>
+        </div>
+
+        <span class="gh-arrow">
+          &gt;&gt;
+        </span>
+      </a>
+    `);
+
+    ghResults.innerHTML = `
+      <div class="gh-count">
+        > ${data.total_count.toLocaleString()}
+        users found — top ${data.items.length}
+      </div>
+
+      ${items.join('')}
+    `;
+
+  } catch(err) {
+
+    ghResults.innerHTML =
+      '<div class="gh-error">> connection to github failed.</div>';
+  }
+}
+</script>
+
+</body>
+</html>
